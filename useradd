@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# A script to create a user account with UID, Home Directory, SHELL and add Group membership.
+# This script will verify user is created by checking the /etc/passwd file and verifying user home directory exist.
+# The script will modify password aging parameters and force user to change password at next login.
+
+
+# Variable arguments to be used when executing script.
+
+user=$1
+group=$2
+number=$3
+name=$4
+
+# Command to create user.
+
+useradd -d /home/$user -s /bin/bash -G $group -u $number -c '$name' $user
+
+echo "#################################"
+# Verifying user account was created.
+
+grep $user /etc/passwd
+echo "##################################"
+
+# If/else statement to check user home directory exists.
+
+if [ -d /home/$user ] ; then
+
+	echo " User $user was successfully created."
+else
+
+	echo "User $user not created."
+
+fi
+
+echo "###################################"
+
+# configuring user password and forcing new password at next login.
+
+passwd $user
+echo "##################################"
+
+chage -d 0 -E -l $user
+echo "#################################"
+
+# Modifying password aging parameters.
+
+passwd -n 30 -x 0 -w 5 $user
+
+exit
